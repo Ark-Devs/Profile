@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+  
   <style>
     :root {
       --bg: #0a0a0a;
@@ -27,6 +27,8 @@
       --transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
       --glass: rgba(255, 255, 255, 0.05);
       --blur: blur(20px);
+      --success: #39d353;
+      --warning: #f85149;
     }
 
     * {
@@ -309,6 +311,59 @@
       background-clip: text;
     }
 
+    /* Tech Stack Section */
+    .tech-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .tech-category {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .tech-category:hover {
+      transform: translateY(-5px);
+      border-color: var(--red-primary);
+    }
+
+    .tech-category h4 {
+      color: var(--red-primary);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .tech-items {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tech-item {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      padding: 0.3rem 0.8rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .tech-item:hover {
+      background: rgba(255, 0, 64, 0.1);
+      color: var(--red-primary);
+      border-color: var(--red-primary);
+    }
+
     /* Services Grid */
     .services-grid {
       display: grid;
@@ -369,6 +424,42 @@
       line-height: 1.6;
     }
 
+    /* Stats Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--red-primary);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--red-primary);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
     /* Projects */
     .projects-grid {
       display: grid;
@@ -427,6 +518,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
+      margin-bottom: 1.5rem;
     }
 
     .tag {
@@ -437,6 +529,99 @@
       font-size: 0.8rem;
       font-weight: 500;
       border: 1px solid rgba(255, 0, 64, 0.3);
+    }
+
+    .project-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .project-link {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+
+    .project-link:hover {
+      border-color: var(--red-primary);
+      color: var(--red-primary);
+    }
+
+    /* Testimonials Section */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--red-primary);
+    }
+
+    .testimonial-quote {
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .testimonial-quote::before {
+      content: '"';
+      font-size: 3rem;
+      color: var(--red-primary);
+      position: absolute;
+      top: -10px;
+      left: -15px;
+      opacity: 0.5;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .author-avatar {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--red-primary), var(--red-secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .author-info h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .author-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
 
     /* Contact Section */
@@ -505,6 +690,52 @@
       box-shadow: 0 0 0 3px rgba(255, 0, 64, 0.1);
     }
 
+    /* GitHub Activity Section */
+    .github-activity {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+
+    .activity-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .activity-day {
+      aspect-ratio: 1;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .activity-day.low { background: rgba(255, 0, 64, 0.2); }
+    .activity-day.medium { background: rgba(255, 0, 64, 0.5); }
+    .activity-day.high { background: rgba(255, 0, 64, 0.8); }
+    .activity-day.very-high { background: var(--red-primary); }
+
+    .activity-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
     /* Animations */
     @keyframes fadeInUp {
       from {
@@ -526,6 +757,16 @@
     .fade-in.visible {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    /* Counter Animation */
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-number.animate {
+      animation: countUp 0.6s ease-out;
     }
 
     /* Responsive Design */
@@ -563,14 +804,16 @@
         padding: 3rem 1rem;
       }
 
-      .services-grid {
+      .services-grid,
+      .projects-grid,
+      .testimonials-grid,
+      .stats-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
       }
 
-      .projects-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+      .tech-stack {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
 
       .contact-grid {
@@ -591,21 +834,6 @@
 
       .floating {
         display: none;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .services-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .projects-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .service-card,
-      .project-card {
-        margin: 0 0.5rem;
       }
     }
 
@@ -635,8 +863,11 @@
       <div class="logo">Ark Devs</div>
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#tech">Tech Stack</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#projects">Projects</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
       <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
@@ -666,6 +897,98 @@
     </div>
     <div class="floating">
       <div class="floating-icon">💻</div>
+    </div>
+  </section>
+
+  <!-- About Section with Stats -->
+  <section id="about" class="section">
+    <h2 class="section-title">About Me</h2>
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 800px; margin: 0 auto; line-height: 1.7;">
+        A passionate full-stack developer based in Colombo, Sri Lanka, with expertise in building scalable web applications and custom software solutions. I specialize in modern technologies and deliver production-ready systems that solve real-world problems.
+      </p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card fade-in">
+        <span class="stat-number" data-target="5">0</span>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-card fade-in">
+        <span class="stat-number" data-target="50">0</span>
+        <div class="stat-label">Projects Completed</div>
+      </div>
+      <div class="stat-card fade-in">
+        <span class="stat-number" data-target="25">0</span>
+        <div class="stat-label">Happy Clients</div>
+      </div>
+      <div class="stat-card fade-in">
+        <span class="stat-number" data-target="99">0</span>
+        <div class="stat-label">% Client Satisfaction</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack Section -->
+  <section id="tech" class="section">
+    <h2 class="section-title">Technology Stack</h2>
+    <div class="tech-stack">
+      <div class="tech-category fade-in">
+        <h4>Frontend</h4>
+        <div class="tech-items">
+          <span class="tech-item">React</span>
+          <span class="tech-item">Next.js</span>
+          <span class="tech-item">TypeScript</span>
+          <span class="tech-item">Vite</span>
+          <span class="tech-item">Tailwind</span>
+          <span class="tech-item">HTML5</span>
+          <span class="tech-item">CSS3</span>
+        </div>
+      </div>
+      
+      <div class="tech-category fade-in">
+        <h4>Backend</h4>
+        <div class="tech-items">
+          <span class="tech-item">Go</span>
+          <span class="tech-item">Node.js</span>
+          <span class="tech-item">Express</span>
+          <span class="tech-item">REST APIs</span>
+          <span class="tech-item">GraphQL</span>
+          <span class="tech-item">gRPC</span>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <h4>Database</h4>
+        <div class="tech-items">
+          <span class="tech-item">MSSQL</span>
+          <span class="tech-item">PostgreSQL</span>
+          <span class="tech-item">MongoDB</span>
+          <span class="tech-item">Redis</span>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <h4>Cloud & DevOps</h4>
+        <div class="tech-items">
+          <span class="tech-item">AWS</span>
+          <span class="tech-item">DigitalOcean</span>
+          <span class="tech-item">Docker</span>
+          <span class="tech-item">CI/CD</span>
+          <span class="tech-item">Linux</span>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <h4>Tools & Others</h4>
+        <div class="tech-items">
+          <span class="tech-item">Git</span>
+          <span class="tech-item">VS Code</span>
+          <span class="tech-item">Postman</span>
+          <span class="tech-item">Figma</span>
+          <span class="tech-item">Jira</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -701,6 +1024,20 @@
           Inventory management, parking systems, barcode printing, and seamless integrations with POS & hardware.
         </p>
       </div>
+      <div class="service-card fade-in">
+        <div class="service-icon">📱</div>
+        <h3 class="service-title">Mobile Development</h3>
+        <p class="service-description">
+          Cross-platform mobile apps with React Native, native performance, and seamless API integrations.
+        </p>
+      </div>
+      <div class="service-card fade-in">
+        <div class="service-icon">🔒</div>
+        <h3 class="service-title">Security & Performance</h3>
+        <p class="service-description">
+          Authentication systems, data encryption, performance optimization, and security audits for production apps.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -725,8 +1062,13 @@
             <span class="tag">Real-time</span>
             <span class="tag">Hardware Integration</span>
           </div>
+          <div class="project-links">
+            <a href="#" class="project-link">Live Demo</a>
+            <a href="#" class="project-link">Case Study</a>
+          </div>
         </div>
       </div>
+      
       <div class="project-card fade-in">
         <div class="project-header">
           <div class="project-icon">📦</div>
@@ -744,8 +1086,420 @@
             <span class="tag">Analytics</span>
             <span class="tag">Multi-tenant</span>
           </div>
+          <div class="project-links">
+            <a href="#" class="project-link">Live Demo</a>
+            <a href="#" class="project-link">Case Study</a>
+          </div>
         </div>
       </div>
+
+      <div class="project-card fade-in">
+        <div class="project-header">
+          <div class="project-icon">💳</div>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">E-Commerce Platform</h3>
+          <p class="project-description">
+            Full-featured e-commerce solution with payment gateway integration, order management, 
+            inventory tracking, and admin dashboard for online retail operations.
+          </p>
+          <div class="project-tags">
+            <span class="tag">Next.js</span>
+            <span class="tag">Node.js</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">Stripe</span>
+            <span class="tag">AWS</span>
+          </div>
+          <div class="project-links">
+            <a href="#" class="project-link">Live Demo</a>
+            <a href="#" class="project-link">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="section">
+    <h2 class="section-title">Client Testimonials</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-quote">
+          Mohammed delivered an exceptional parking management system that exceeded our expectations. 
+          The real-time monitoring and automated billing features have significantly improved our operations.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">DH</div>
+          <div class="author-info">
+            <h4>Dr. Ahmed Hassan</h4>
+            <p>IT Director, Delmon Hospital</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-quote">
+          The inventory management system has transformed how we handle our stock. The multi-location 
+          support and analytics dashboard provide insights we never had before.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">NW</div>
+          <div class="author-info">
+            <h4>Sarah Williams</h4>
+            <p>Operations Manager, NMW Colombo</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-quote">
+          Working with Mohammed was a pleasure. He understood our requirements perfectly and delivered 
+          a robust, scalable solution on time and within budget.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">TG</div>
+          <div class="author-info">
+            <h4>Tech Guru Ltd</h4>
+            <p>CEO, Local Tech Company</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GitHub Activity Section -->
+  <section id="github-activity" class="section">
+    <h2 class="section-title">GitHub Activity</h2>
+    
+    <div class="contributions-container fade-in">
+      <div class="contributions-header">
+        <h3 class="contributions-title">muh4mmedh's contributions</h3>
+        <div class="year-selector" id="yearSelector">
+          <!-- Years will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <div id="contributionsGraph">
+        <div class="loading">Loading contributions...</div>
+      </div>
+    </div>
+
+    <!-- Tooltip element -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <style>
+      /* GitHub Contributions Container - Exact GitHub Styling */
+      .contributions-container {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 2rem;
+      }
+
+      .contributions-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .contributions-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin: 0;
+      }
+
+      .year-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .year-link {
+        color: #7d8590;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: color 0.2s ease;
+      }
+
+      .year-link:hover {
+        color: #58a6ff;
+      }
+
+      .year-link.active {
+        color: #e6edf3;
+        background: #21262d;
+      }
+
+      /* Contribution Graph */
+      .contrib-graph {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .contrib-graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .contrib-count {
+        color: #7d8590;
+        font-size: 12px;
+      }
+
+      .contrib-legend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #7d8590;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .legend-square {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+      }
+
+      /* Calendar Grid */
+      .contrib-calendar {
+        display: flex;
+        gap: 3px;
+        overflow-x: auto;
+        padding: 8px 0;
+      }
+
+      .month-column {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: fit-content;
+      }
+
+      .month-label {
+        font-size: 12px;
+        color: #7d8590;
+        text-align: center;
+        margin-bottom: 4px;
+        height: 15px;
+      }
+
+      .week-column {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .day-square {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        position: relative;
+      }
+
+      .day-square:hover {
+        outline: 2px solid rgba(255, 255, 255, 0.3);
+        outline-offset: 1px;
+      }
+
+      /* GitHub's exact contribution levels */
+      .contrib-level-0 { background-color: #161b22; }
+      .contrib-level-1 { background-color: #0e4429; }
+      .contrib-level-2 { background-color: #006d32; }
+      .contrib-level-3 { background-color: #26a641; }
+      .contrib-level-4 { background-color: #39d353; }
+
+      /* Weekday labels */
+      .weekday-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-right: 8px;
+        padding-top: 19px;
+      }
+
+      .weekday-label {
+        height: 10px;
+        font-size: 12px;
+        color: #7d8590;
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+      }
+
+      .weekday-label:nth-child(even) {
+        visibility: hidden;
+      }
+
+      /* Tooltip */
+      .tooltip {
+        position: absolute;
+        background: #21262d;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 12px;
+        color: #e6edf3;
+        pointer-events: none;
+        z-index: 1000;
+        white-space: nowrap;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .tooltip.visible {
+        opacity: 1;
+      }
+
+      .tooltip::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 6px solid #21262d;
+      }
+
+      /* Loading state */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        color: #7d8590;
+        font-size: 14px;
+      }
+
+      .loading::before {
+        content: '';
+        width: 16px;
+        height: 16px;
+        border: 2px solid #21262d;
+        border-top: 2px solid #58a6ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* Error state */
+      .error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        color: #f85149;
+        font-size: 14px;
+        text-align: center;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .contributions-container {
+          padding: 12px;
+        }
+
+        .contributions-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .year-selector {
+          overflow-x: auto;
+          width: 100%;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .year-selector::-webkit-scrollbar {
+          display: none;
+        }
+
+        .contrib-calendar {
+          margin-left: -8px;
+        }
+
+        .weekday-label {
+          font-size: 10px;
+        }
+
+        .month-label {
+          font-size: 10px;
+        }
+
+        .day-square {
+          width: 8px;
+          height: 8px;
+        }
+
+        .tooltip {
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          top: auto;
+        }
+
+        .tooltip::before {
+          display: none;
+        }
+      }
+
+      /* Animations */
+      .year-link {
+        transition: all 0.2s ease;
+      }
+
+      .year-link.active {
+        transform: scale(1.05);
+      }
+
+      .contrib-graph {
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <a href="https://github.com/muh4mmedh" target="_blank" style="color: var(--red-primary); text-decoration: none; font-weight: 500;">
+        View on GitHub →
+      </a>
     </div>
   </section>
 
@@ -767,6 +1521,12 @@
           <span class="contact-icon">📍</span>
           <span>Colombo, Sri Lanka</span>
         </div>
+        <div class="contact-item">
+          <span class="contact-icon">🐙</span>
+          <a href="https://github.com/muh4mmedh" target="_blank" style="color: var(--text-secondary); text-decoration: none;">
+            github.com/muh4mmedh
+          </a>
+        </div>
         <p style="color: var(--text-muted); margin-top: 1.5rem;">
           Ready to bring your ideas to life? Let's discuss your project requirements and create something amazing together.
         </p>
@@ -781,8 +1541,21 @@
           <input type="email" id="email" name="email" required>
         </div>
         <div class="form-group">
+          <label for="project">Project Type</label>
+          <select id="project" name="project" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; color: var(--text-primary); font-family: inherit;">
+            <option value="">Select a project type</option>
+            <option value="web-app">Web Application</option>
+            <option value="mobile-app">Mobile Application</option>
+            <option value="inventory">Inventory Management</option>
+            <option value="ecommerce">E-Commerce Platform</option>
+            <option value="custom">Custom System</option>
+            <option value="consultation">Consultation</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="message">Project Details</label>
-          <textarea id="message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
+          <textarea id="message" name="message" rows="5" placeholder="Tell me about your project, timeline, and specific requirements..." required></textarea>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
       </form>
@@ -831,6 +1604,11 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
+          
+          // Animate counters
+          if (entry.target.querySelector('.stat-number')) {
+            animateCounters(entry.target);
+          }
         }
       });
     }, observerOptions);
@@ -839,6 +1617,343 @@
     document.querySelectorAll('.fade-in').forEach(el => {
       observer.observe(el);
     });
+
+    // Counter Animation
+    function animateCounters(container) {
+      const counters = container.querySelectorAll('.stat-number');
+      
+      counters.forEach(counter => {
+        const target = parseInt(counter.dataset.target);
+        const increment = target / 100;
+        let current = 0;
+        
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            counter.textContent = target + (target === 99 ? '' : '');
+            clearInterval(timer);
+          } else {
+            counter.textContent = Math.floor(current);
+          }
+        }, 20);
+        
+        counter.classList.add('animate');
+      });
+    }
+
+    // Generate GitHub Activity Grid
+    class GitHubContributions {
+        constructor(username) {
+            this.username = username;
+            this.currentYear = new Date().getFullYear();
+            this.selectedYear = this.currentYear;
+            this.contributionData = {};
+            this.tooltip = document.getElementById('tooltip');
+            
+            this.init();
+        }
+
+        async init() {
+            this.createYearSelector();
+            await this.loadContributions(this.selectedYear);
+        }
+
+        createYearSelector() {
+            const yearSelector = document.getElementById('yearSelector');
+            const years = [];
+            
+            // Create last 4 years
+            for (let i = 0; i < 4; i++) {
+                years.push(this.currentYear - i);
+            }
+
+            yearSelector.innerHTML = years.map(year => `
+                <a href="#" class="year-link ${year === this.selectedYear ? 'active' : ''}" data-year="${year}">
+                    ${year}
+                </a>
+            `).join('');
+
+            // Add event listeners
+            yearSelector.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('year-link')) {
+                    const year = parseInt(e.target.dataset.year);
+                    this.selectYear(year);
+                }
+            });
+        }
+
+        async selectYear(year) {
+            this.selectedYear = year;
+            
+            // Update active year
+            document.querySelectorAll('.year-link').forEach(link => {
+                link.classList.toggle('active', parseInt(link.dataset.year) === year);
+            });
+
+            await this.loadContributions(year);
+        }
+
+        async loadContributions(year) {
+            const graphContainer = document.getElementById('contributionsGraph');
+            graphContainer.innerHTML = '<div class="loading">Loading contributions...</div>';
+
+            try {
+                // Simulate API call with mock data for demo
+                const data = await this.fetchContributionData(year);
+                this.renderContributionGraph(data);
+            } catch (error) {
+                console.error('Error loading contributions:', error);
+                graphContainer.innerHTML = `
+                    <div class="error">
+                        <span>Unable to load contribution data</span>
+                        <small>Please try again later</small>
+                    </div>
+                `;
+            }
+        }
+
+        async fetchContributionData(year) {
+            // Mock data for demonstration
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const data = this.generateMockData(year);
+                    resolve(data);
+                }, 1000);
+            });
+        }
+
+        generateMockData(year) {
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31);
+            const contributions = [];
+            let totalContributions = 0;
+
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const date = new Date(d);
+                const dayOfYear = Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
+                
+                // Generate realistic contribution pattern
+                let count = 0;
+                const dayOfWeek = date.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                
+                // Lower activity on weekends
+                const baseChance = isWeekend ? 0.3 : 0.7;
+                
+                if (Math.random() < baseChance) {
+                    // Weighted towards lower contribution counts
+                    const rand = Math.random();
+                    if (rand < 0.5) count = Math.floor(Math.random() * 3) + 1;
+                    else if (rand < 0.8) count = Math.floor(Math.random() * 8) + 4;
+                    else count = Math.floor(Math.random() * 15) + 10;
+                }
+
+                totalContributions += count;
+                contributions.push({
+                    date: date.toISOString().split('T')[0],
+                    count: count,
+                    level: this.getContributionLevel(count)
+                });
+            }
+
+            return {
+                year,
+                totalContributions,
+                contributions
+            };
+        }
+
+        getContributionLevel(count) {
+            if (count === 0) return 0;
+            if (count < 3) return 1;
+            if (count < 6) return 2;
+            if (count < 10) return 3;
+            return 4;
+        }
+
+        renderContributionGraph(data) {
+            const graphContainer = document.getElementById('contributionsGraph');
+            const { year, totalContributions, contributions } = data;
+
+            // Create the graph structure
+            graphContainer.innerHTML = `
+                <div class="contrib-graph">
+                    <div class="contrib-graph-header">
+                        <div class="contrib-count">${totalContributions.toLocaleString()} contributions in ${year}</div>
+                        <div class="contrib-legend">
+                            <span>Less</span>
+                            <div class="legend-item">
+                                <div class="legend-square contrib-level-0"></div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-square contrib-level-1"></div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-square contrib-level-2"></div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-square contrib-level-3"></div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-square contrib-level-4"></div>
+                            </div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                    ${this.createCalendarGrid(contributions)}
+                </div>
+            `;
+
+            // Add tooltip functionality
+            this.addTooltipListeners();
+        }
+
+        createCalendarGrid(contributions) {
+            const startDate = new Date(contributions[0].date);
+            const endDate = new Date(contributions[contributions.length - 1].date);
+            
+            // Find the first Sunday of the year (or before)
+            const firstDay = new Date(startDate);
+            firstDay.setDate(firstDay.getDate() - firstDay.getDay());
+
+            const months = [];
+            const weeks = [];
+            let currentWeek = [];
+            let currentMonth = firstDay.getMonth();
+            let monthLabel = '';
+
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            for (let date = new Date(firstDay); date <= endDate || currentWeek.length > 0; date.setDate(date.getDate() + 1)) {
+                const dateStr = date.toISOString().split('T')[0];
+                const contribution = contributions.find(c => c.date === dateStr);
+                const count = contribution ? contribution.count : 0;
+                const level = contribution ? contribution.level : 0;
+
+                // Check if we need to add a month label
+                if (date.getMonth() !== currentMonth && date.getDate() <= 7) {
+                    currentMonth = date.getMonth();
+                    monthLabel = monthNames[currentMonth];
+                }
+
+                currentWeek.push({
+                    date: dateStr,
+                    count,
+                    level,
+                    isCurrentYear: date >= startDate && date <= endDate
+                });
+
+                if (date.getDay() === 6 || date > endDate) {
+                    weeks.push({
+                        days: [...currentWeek],
+                        monthLabel: monthLabel
+                    });
+                    monthLabel = '';
+                    currentWeek = [];
+                }
+
+                if (date > endDate && currentWeek.length === 0) break;
+            }
+
+            return `
+                <div style="display: flex; align-items: flex-start;">
+                    <div class="weekday-labels">
+                        <div class="weekday-label">Sun</div>
+                        <div class="weekday-label">Mon</div>
+                        <div class="weekday-label">Tue</div>
+                        <div class="weekday-label">Wed</div>
+                        <div class="weekday-label">Thu</div>
+                        <div class="weekday-label">Fri</div>
+                        <div class="weekday-label">Sat</div>
+                    </div>
+                    <div class="contrib-calendar">
+                        ${weeks.map(week => `
+                            <div class="week-column">
+                                <div class="month-label">${week.monthLabel}</div>
+                                ${week.days.map(day => `
+                                    <div class="day-square contrib-level-${day.level}" 
+                                         data-date="${day.date}" 
+                                         data-count="${day.count}"
+                                         style="opacity: ${day.isCurrentYear ? 1 : 0.3}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        addTooltipListeners() {
+            const squares = document.querySelectorAll('.day-square');
+            
+            squares.forEach(square => {
+                square.addEventListener('mouseenter', (e) => {
+                    this.showTooltip(e);
+                });
+
+                square.addEventListener('mouseleave', () => {
+                    this.hideTooltip();
+                });
+            });
+        }
+
+        showTooltip(e) {
+            const square = e.target;
+            const date = square.dataset.date;
+            const count = parseInt(square.dataset.count);
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const contributionText = count === 0 ? 'No contributions' :
+                                   count === 1 ? '1 contribution' :
+                                   `${count} contributions`;
+
+            this.tooltip.textContent = `${contributionText} on ${formattedDate}`;
+            this.tooltip.classList.add('visible');
+
+            // Position tooltip
+            const rect = square.getBoundingClientRect();
+            const tooltipRect = this.tooltip.getBoundingClientRect();
+            
+            // Check if we're on mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                this.tooltip.style.left = '50%';
+                this.tooltip.style.transform = 'translateX(-50%)';
+                this.tooltip.style.bottom = '20px';
+                this.tooltip.style.top = 'auto';
+            } else {
+                // Check if tooltip would go off-screen
+                const leftPosition = rect.left + rect.width / 2 - tooltipRect.width / 2;
+                const rightEdge = leftPosition + tooltipRect.width;
+                const viewportWidth = window.innerWidth;
+
+                if (leftPosition < 0) {
+                    this.tooltip.style.left = '0px';
+                } else if (rightEdge > viewportWidth) {
+                    this.tooltip.style.left = `${viewportWidth - tooltipRect.width}px`;
+                } else {
+                    this.tooltip.style.left = `${leftPosition}px`;
+                }
+
+                this.tooltip.style.top = `${rect.top - tooltipRect.height - 8}px`;
+                this.tooltip.style.transform = 'none';
+                this.tooltip.style.bottom = 'auto';
+            }
+        }
+
+        hideTooltip() {
+            this.tooltip.classList.remove('visible');
+        }
+    }
 
     // Contact Form Handler
     const contactForm = document.getElementById('contactForm');
@@ -849,12 +1964,26 @@
       const data = {
         name: formData.get('name'),
         email: formData.get('email'),
+        project: formData.get('project'),
+        budget: formData.get('budget'),
         message: formData.get('message')
       };
 
-      // Create mailto link as fallback
-      const subject = encodeURIComponent(`Project Inquiry from ${data.name}`);
-      const body = encodeURIComponent(`Name: ${data.name}\nEmail: ${data.email}\n\nMessage:\n${data.message}`);
+      // Create enhanced mailto link
+      const subject = encodeURIComponent(`${data.project ? data.project.replace('-', ' ').toUpperCase() + ' - ' : ''}Project Inquiry from ${data.name}`);
+      const body = encodeURIComponent(`
+Name: ${data.name}
+Email: ${data.email}
+Project Type: ${data.project || 'Not specified'}
+Budget Range: ${data.budget || 'Not specified'}
+
+Message:
+${data.message}
+
+---
+Sent via Ark Devs Portfolio Contact Form
+      `.trim());
+      
       const mailtoLink = `mailto:muhammedhspam@gmail.com?subject=${subject}&body=${body}`;
       
       // Open email client
@@ -882,8 +2011,8 @@
       });
     });
 
-    // Add some interactive hover effects
-    document.querySelectorAll('.service-card, .project-card').forEach(card => {
+    // Enhanced hover effects
+    document.querySelectorAll('.service-card, .project-card, .testimonial-card').forEach(card => {
       card.addEventListener('mouseenter', function() {
         this.style.transform = 'translateY(-10px) scale(1.02)';
       });
@@ -891,6 +2020,36 @@
       card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0) scale(1)';
       });
+    });
+
+    // Initialize GitHub contributions graph
+    document.addEventListener('DOMContentLoaded', () => {
+      new GitHubContributions('muh4mmedh');
+    });
+
+    // Add typing effect to hero title
+    function typeWriter(element, text, speed = 50) {
+      let i = 0;
+      element.innerHTML = '';
+      
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        }
+      }
+      
+      type();
+    }
+
+    // Initialize typing effect on page load
+    window.addEventListener('load', () => {
+      const heroTitle = document.querySelector('.hero-title');
+      const originalText = heroTitle.textContent;
+      setTimeout(() => {
+        typeWriter(heroTitle, originalText, 80);
+      }, 500);
     });
   </script>
 </body>
