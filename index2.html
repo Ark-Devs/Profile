@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>muh4mmedh.dev — VS Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@vscode/codicons@0.0.36/dist/codicon.css">
+  <style>
+    :root{
+      --bg:#0d1117; --bg2:#161b22; --bg3:#1e2530; --bg4:#252d3a;
+      --border:#30363d; --border2:rgba(255,255,255,.05);
+      --green:#00ff41; --green-dim:#00cc33; --green-xs:rgba(0,255,65,.08);
+      --blue:#79c0ff; --orange:#ffa657; --purple:#d2a8ff;
+      --str:#a5d6ff; --cmt:#8b949e;
+      --white:#e6edf3; --gray:#8b949e; --gray2:#6e7681;
+      --tab-h:35px; --sidebar-w:240px; --activity-w:48px; --statusbar-h:22px;
+      --titlebar-h:30px;
+      --mono:'JetBrains Mono',monospace; --sans:'Inter',system-ui,sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:var(--mono);background:var(--bg);color:var(--white);-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+
+    /* ── LAYOUT ── */
+    .ide{display:grid;grid-template-rows:var(--titlebar-h) var(--tab-h) 1fr var(--statusbar-h);height:100vh;}
+    .main-row{display:flex;overflow:hidden;height:100%;}
+
+    /* ── TITLEBAR ── */
+    .titlebar{
+      background:#161b22;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 1rem;user-select:none;
+    }
+    .titlebar-left{display:flex;align-items:center;gap:.5rem;}
+    .titlebar-dot{width:12px;height:12px;border-radius:50%;}
+    .td-r{background:#ff5f56;} .td-y{background:#ffbd2e;} .td-g{background:#27c93f;}
+    .titlebar-title{font-size:.72rem;color:var(--gray);letter-spacing:.02em;}
+    .titlebar-title span{color:var(--white);}
+    .titlebar-menu{display:flex;gap:1.2rem;}
+    .titlebar-menu a{font-size:.68rem;color:var(--gray);transition:color .15s;padding:.2rem .1rem;}
+    .titlebar-menu a:hover{color:var(--white);}
+
+    /* ── TABS ── */
+    .tabs{
+      background:var(--bg2);border-bottom:1px solid var(--border);
+      display:flex;align-items:flex-end;overflow-x:auto;overflow-y:hidden;
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none;}
+    .tab{
+      flex-shrink:0;display:flex;align-items:center;gap:.45rem;
+      padding:0 1rem;height:var(--tab-h);font-size:.72rem;
+      border-right:1px solid var(--border);cursor:pointer;
+      color:var(--gray);background:var(--bg2);
+      border-top:1px solid transparent;
+      transition:color .15s,background .15s;
+      position:relative;white-space:nowrap;
+    }
+    .tab:hover{color:var(--white);background:var(--bg3);}
+    .tab.active{
+      color:var(--white);background:var(--bg);
+      border-top-color:var(--green);
+    }
+    .tab-icon{display:flex;align-items:center;opacity:.8;}
+    .tab-icon .codicon{font-size:14px;}
+    .tab-close{
+      color:var(--gray2);opacity:0;
+      width:16px;height:16px;border-radius:3px;
+      display:flex;align-items:center;justify-content:center;
+      transition:opacity .15s,background .15s;
+      font-size:0;
+    }
+    .tab-close .codicon{font-size:13px;}
+    .tab:hover .tab-close{opacity:.7;}
+    .tab-close:hover{opacity:1!important;background:var(--bg4);color:var(--white);}
+
+    /* ── ACTIVITY BAR ── */
+    .activity-bar{
+      width:var(--activity-w);flex-shrink:0;
+      background:var(--bg2);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;align-items:center;
+      padding:.4rem 0;gap:.1rem;
+    }
+    .act-btn{
+      width:40px;height:40px;border-radius:6px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      color:var(--gray2);transition:color .15s;
+      position:relative;
+    }
+    .act-btn .codicon{font-size:20px;}
+    .act-btn:hover{color:var(--white);}
+    .act-btn.active{color:var(--white);}
+    .act-btn.active::before{
+      content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+      width:2px;height:22px;background:var(--green);border-radius:0 1px 1px 0;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:var(--sidebar-w);flex-shrink:0;
+      background:var(--bg2);border-right:1px solid var(--border);
+      overflow-y:auto;overflow-x:hidden;font-size:.72rem;
+    }
+    .sidebar::-webkit-scrollbar{width:3px;}
+    .sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+    .sidebar-title{
+      padding:.6rem .8rem .4rem;font-size:.62rem;color:var(--gray2);
+      letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+    }
+    .tree-item{
+      display:flex;align-items:center;gap:.4rem;
+      padding:.22rem .8rem .22rem 1.2rem;cursor:pointer;
+      color:var(--gray);transition:background .12s,color .12s;
+      white-space:nowrap;
+    }
+    .tree-item:hover{background:rgba(255,255,255,.04);color:var(--white);}
+    .tree-item.selected{background:var(--green-xs);color:var(--white);}
+    .tree-item.folder{padding-left:.8rem;color:var(--gray2);cursor:default;}
+    .tree-icon{display:flex;align-items:center;flex-shrink:0;}
+    .tree-icon .codicon{font-size:15px;}
+    .ext-go{color:#79d4fd;} .ext-md{color:#8fc4e0;} .ext-json{color:#ffa657;}
+    .ext-folder{color:#dcb67a;}
+
+    /* ── EDITOR ── */
+    .editor{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);}
+    .editor-content{flex:1;overflow-y:auto;overflow-x:auto;display:flex;}
+    .editor-content::-webkit-scrollbar{width:5px;height:5px;}
+    .editor-content::-webkit-scrollbar-thumb{background:var(--border);}
+
+    /* line numbers */
+    .line-numbers{
+      flex-shrink:0;padding:1.2rem 0;
+      text-align:right;background:var(--bg);
+      width:44px;
+      color:var(--gray2);font-size:.78rem;line-height:1.75;
+      user-select:none;padding-right:.6rem;
+    }
+    .ln{display:block;}
+    .ln.cur{color:var(--gray);}
+
+    /* code pane */
+    .code-pane{
+      flex:1;padding:1.2rem 0 1.2rem 1rem;
+      font-size:.78rem;line-height:1.75;white-space:pre;
+      min-width:0;
+    }
+    .code-line{display:block;padding-left:.2rem;}
+    .code-line:hover{background:rgba(255,255,255,.02);}
+
+    /* syntax tokens */
+    .kw{color:var(--purple);}
+    .kw2{color:#ff7b72;}
+    .type{color:var(--blue);}
+    .str{color:var(--orange);}
+    .cmt{color:var(--cmt);font-style:italic;}
+    .num{color:#d2a8ff;}
+    .fn{color:#d2a8ff;}
+    .prop{color:var(--blue);}
+    .op{color:var(--gray);}
+    .md-h1{color:var(--white);font-weight:700;font-size:.88rem;}
+    .md-h2{color:var(--blue);font-weight:600;}
+    .md-blockquote{color:var(--green-dim);}
+    .md-bold{color:var(--white);font-weight:600;}
+    .md-link{color:var(--green);text-decoration:underline;}
+    .md-hr{color:var(--border);}
+    .md-badge{
+      display:inline-block;background:var(--green-xs);color:var(--green-dim);
+      border:1px solid rgba(0,255,65,.2);border-radius:3px;
+      padding:0 .4rem;font-size:.68rem;vertical-align:middle;
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb{
+      padding:.3rem .9rem;font-size:.68rem;color:var(--gray2);
+      border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:.3rem;
+    }
+    .breadcrumb span{color:var(--gray);}
+    .breadcrumb .sep{color:var(--gray2);}
+
+    /* ── STATUS BAR ── */
+    .statusbar{
+      background:#238636;display:flex;align-items:center;justify-content:space-between;
+      padding:0 .7rem;font-size:.65rem;color:#fff;user-select:none;
+    }
+    .sb-left,.sb-right{display:flex;align-items:center;gap:.6rem;}
+    .sb-item{display:flex;align-items:center;gap:.3rem;padding:0 .3rem;opacity:.9;}
+    .sb-dot{width:7px;height:7px;border-radius:50%;background:#00ff41;
+      box-shadow:0 0 6px #00ff41;animation:pulse2 2s infinite;}
+    @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* ── MOBILE FALLBACK ── */
+    .mobile-note{display:none;}
+    @media(max-width:700px){
+      .ide{display:none;}
+      .mobile-note{
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        height:100vh;gap:1rem;padding:2rem;text-align:center;
+        background:var(--bg);
+      }
+      .mobile-note h2{font-family:var(--mono);font-size:1.1rem;color:var(--white);}
+      .mobile-note p{font-size:.8rem;color:var(--gray);line-height:1.7;}
+      .mobile-note a{
+        font-family:var(--mono);font-size:.8rem;color:var(--green);
+        border:1px solid var(--green);padding:.5rem 1.2rem;border-radius:4px;
+        transition:background .2s;
+      }
+      .mobile-note a:hover{background:rgba(0,255,65,.1);}
+    }
+  </style>
+</head>
+<body>
+
+<!-- MOBILE FALLBACK -->
+<div class="mobile-note">
+  <h2>// best viewed on desktop</h2>
+  <p>This IDE-style portfolio is designed for larger screens.<br>
+     Check out the standard version instead.</p>
+  <a href="index.html">View Portfolio &rarr;</a>
+</div>
+
+<!-- IDE SHELL -->
+<div class="ide">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <div class="titlebar-dot td-r"></div>
+      <div class="titlebar-dot td-y"></div>
+      <div class="titlebar-dot td-g"></div>
+    </div>
+    <div class="titlebar-title"><span>muh4mmedh.dev</span> &nbsp;&#x2014;&nbsp; Visual Studio Code</div>
+    <div class="titlebar-menu">
+      <a href="index.html">standard view</a>
+      <a href="https://github.com/muh4mmedh" target="_blank">github</a>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-file="readme" onclick="openFile('readme', this)">
+      <span class="tab-icon"><i class="codicon codicon-markdown"></i></span>README.md
+      <span class="tab-close"><i class="codicon codicon-close"></i></span>
+    </div>
+    <div class="tab" data-file="about" onclick="openFile('about', this)">
+      <span class="tab-icon ext-go"><i class="codicon codicon-file-code"></i></span>about.go
+      <span class="tab-close"><i class="codicon codicon-close"></i></span>
+    </div>
+    <div class="tab" data-file="projects" onclick="openFile('projects', this)">
+      <span class="tab-icon ext-go"><i class="codicon codicon-file-code"></i></span>projects.go
+      <span class="tab-close"><i class="codicon codicon-close"></i></span>
+    </div>
+    <div class="tab" data-file="stack" onclick="openFile('stack', this)">
+      <span class="tab-icon ext-json"><i class="codicon codicon-json"></i></span>stack.json
+      <span class="tab-close"><i class="codicon codicon-close"></i></span>
+    </div>
+    <div class="tab" data-file="contact" onclick="openFile('contact', this)">
+      <span class="tab-icon ext-go"><i class="codicon codicon-file-code"></i></span>contact.go
+      <span class="tab-close"><i class="codicon codicon-close"></i></span>
+    </div>
+  </div>
+
+  <!-- MAIN ROW -->
+  <div class="main-row">
+
+    <!-- ACTIVITY BAR -->
+    <div class="activity-bar">
+      <div class="act-btn active" title="Explorer"><i class="codicon codicon-files"></i></div>
+      <div class="act-btn" title="Search" onclick="openFile('readme',document.querySelector('[data-file=readme]'))"><i class="codicon codicon-search"></i></div>
+      <div class="act-btn" title="GitHub" onclick="window.open('https://github.com/muh4mmedh','_blank')"><i class="codicon codicon-github"></i></div>
+      <div style="flex:1"></div>
+      <div class="act-btn" title="Contact" onclick="openFile('contact',document.querySelector('[data-file=contact]'))"><i class="codicon codicon-mail"></i></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-title">Explorer</div>
+      <div class="sidebar-title" style="padding-top:.2rem; color:var(--white);"><i class="codicon codicon-chevron-down" style="font-size:11px;vertical-align:middle;margin-right:.3rem;"></i>muh4mmedh.dev</div>
+
+      <div class="tree-item folder">
+        <span class="tree-icon ext-folder"><i class="codicon codicon-chevron-right"></i></span>
+        <span>src</span>
+      </div>
+      <div class="tree-item selected" data-file="about" onclick="openFile('about',document.querySelector('[data-file=about]'),this)">
+        <span class="tree-icon ext-go" style="padding-left:.8rem"><i class="codicon codicon-file-code"></i></span>
+        <span>about.go</span>
+      </div>
+      <div class="tree-item" data-file="projects" onclick="openFile('projects',document.querySelector('[data-file=projects]'),this)">
+        <span class="tree-icon ext-go" style="padding-left:.8rem"><i class="codicon codicon-file-code"></i></span>
+        <span>projects.go</span>
+      </div>
+      <div class="tree-item" data-file="contact" onclick="openFile('contact',document.querySelector('[data-file=contact]'),this)">
+        <span class="tree-icon ext-go" style="padding-left:.8rem"><i class="codicon codicon-file-code"></i></span>
+        <span>contact.go</span>
+      </div>
+      <div class="tree-item selected" data-file="readme" onclick="openFile('readme',document.querySelector('[data-file=readme]'),this)">
+        <span class="tree-icon ext-md"><i class="codicon codicon-markdown"></i></span>
+        <span>README.md</span>
+      </div>
+      <div class="tree-item" data-file="stack" onclick="openFile('stack',document.querySelector('[data-file=stack]'),this)">
+        <span class="tree-icon ext-json"><i class="codicon codicon-json"></i></span>
+        <span>stack.json</span>
+      </div>
+
+      <div style="margin-top:1.4rem;">
+        <div class="sidebar-title"><i class="codicon codicon-chevron-down" style="font-size:11px;vertical-align:middle;margin-right:.3rem;"></i>outline</div>
+        <div id="outline" style="padding:.2rem 0;"></div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="editor">
+      <div class="breadcrumb" id="breadcrumb">
+        <span>muh4mmedh.dev</span>
+        <span class="sep">&#8250;</span>
+        <span id="bc-file">README.md</span>
+      </div>
+      <div class="editor-content" id="editorContent">
+        <div class="line-numbers" id="lineNumbers"></div>
+        <div class="code-pane" id="codePain"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-row -->
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="sb-left">
+      <div class="sb-item"><span class="sb-dot"></span>available for freelance</div>
+      <div class="sb-item" id="sbBranch"><i class="codicon codicon-git-branch" style="font-size:13px;"></i> main</div>
+    </div>
+    <div class="sb-right">
+      <div class="sb-item" id="sbLang">Markdown</div>
+      <div class="sb-item" id="sbLine">Ln 1, Col 1</div>
+      <div class="sb-item">UTF-8</div>
+      <div class="sb-item"><i class="codicon codicon-location" style="font-size:13px;"></i> Colombo, Sri Lanka</div>
+      <div class="sb-item" id="sbTime"></div>
+    </div>
+  </div>
+
+</div><!-- /ide -->
+
+<script>
+// ── file content registry ──────────────────────────────────────────
+const FILES = {
+  readme: {
+    lang:'Markdown', ext:'README.md',
+    lines:[
+      ['md-h1','# Mohammed Rahumatulla'],
+      ['',''],
+      ['md-blockquote','> Full-stack developer · Colombo, Sri Lanka'],
+      ['',''],
+      ['','---'],
+      ['',''],
+      ['md-h2','## About'],
+      ['',''],
+      ['','Working as a full-stack dev at ','md-bold','21c Care',' building'],
+      ['',''],
+      ['','internal tools, dashboards and integrations.'],
+      ['','Outside of work, running ','md-bold','Ark Devs',' for freelance'],
+      ['','client projects ranging from inventory systems to IoT.'],
+      ['',''],
+      ['md-h2','## Status'],
+      ['',''],
+      ['','Status   ','md-badge','available for freelance'],
+      ['','Experience  2+ years'],
+      ['','Location    Colombo, Sri Lanka (UTC+05:30)'],
+      ['',''],
+      ['md-h2','## Quick links'],
+      ['',''],
+      ['','- ','md-link','about.go','','  — who I am'],
+      ['','- ','md-link','projects.go','','  — what I shipped'],
+      ['','- ','md-link','stack.json','','  — tools I use'],
+      ['','- ','md-link','contact.go','','  — reach out'],
+      ['',''],
+      ['md-hr','---'],
+      ['',''],
+      ['cmt','<!-- built with React · Go · MSSQL · ☕ -->'],
+    ]
+  },
+  about: {
+    lang:'Go', ext:'about.go',
+    lines:[
+      ['kw','package ','','main'],
+      ['',''],
+      ['cmt','// Mohammed Rahumatulla — Full-Stack Developer'],
+      ['cmt','// 2+ years · React, Go, MSSQL'],
+      ['cmt','// Colombo, Sri Lanka'],
+      ['',''],
+      ['kw','import ','str','"fmt"'],
+      ['',''],
+      ['cmt','// Developer holds profile information.'],
+      ['kw','type ','type','Developer ','kw','struct ','op','{'],
+      ['','  ','prop','Name       ','type','string'],
+      ['','  ','prop','Role       ','type','string'],
+      ['','  ','prop','Location   ','type','string'],
+      ['','  ','prop','Employer   ','type','string'],
+      ['','  ','prop','Freelance  ','type','string'],
+      ['','  ','prop','Years      ','type','int'],
+      ['op','}'],
+      ['',''],
+      ['kw','var ','','me ','op','= ','type','Developer','op','{'],
+      ['','  ','prop','Name','op',':      ','str','"Mohammed Rahumatulla"','op',','],
+      ['','  ','prop','Role','op',':      ','str','"Full-Stack Developer"','op',','],
+      ['','  ','prop','Location','op',':  ','str','"Colombo, Sri Lanka"','op',','],
+      ['','  ','prop','Employer','op',':  ','str','"21c Care"','op',','],
+      ['','  ','prop','Freelance','op',': ','str','"Ark Devs"','op',','],
+      ['','  ','prop','Years','op',':     ','num','2','op',','],
+      ['op','}'],
+      ['',''],
+      ['kw','func ','fn','main','op','() {'],
+      ['','  ','fn','fmt','op','.','fn','Println','op','(','str','"Hello, World!"','op',')'],
+      ['op','}'],
+    ]
+  },
+  projects: {
+    lang:'Go', ext:'projects.go',
+    lines:[
+      ['kw','package ','','projects'],
+      ['',''],
+      ['cmt','// Client and personal work shipped through Ark Devs & 21c Care.'],
+      ['',''],
+      ['kw','type ','type','Project ','kw','struct ','op','{'],
+      ['','  ','prop','Name   ','type','string'],
+      ['','  ','prop','Client ','type','string'],
+      ['','  ','prop','Stack  ','op','[]','type','string'],
+      ['','  ','prop','Status ','type','string'],
+      ['op','}'],
+      ['',''],
+      ['kw','var ','','Projects ','op','= []','type','Project','op','{'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"NMW Colombo — Inventory System"','op',','],
+      ['','  ','prop','Client','op',': ','str','"NMW Colombo · Ark Devs"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"React"','op',', ','str','"Go"','op',', ','str','"MSSQL"','op',', ','str','"REST"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"shipped"','op',','],
+      ['op','},'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"Smart Parking System"','op',','],
+      ['','  ','prop','Client','op',': ','str','"client · Ark Devs"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"React"','op',', ','str','"Go"','op',', ','str','"MSSQL"','op',', ','str','"IoT"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"shipped"','op',','],
+      ['op','},'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"Abee Bakr — Welfare System"','op',','],
+      ['','  ','prop','Client','op',': ','str','"client · Ark Devs"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"React"','op',', ','str','"Go"','op',', ','str','"MSSQL"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"shipped"','op',','],
+      ['op','},'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"Nawaloka Hospital — Temp Alert"','op',','],
+      ['','  ','prop','Client','op',': ','str','"Nawaloka Hospital · Ark Devs"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"React"','op',', ','str','"Go"','op',', ','str','"IoT"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"in progress"','op',','],
+      ['op','},'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"Creative Canvas"','op',','],
+      ['','  ','prop','Client','op',': ','str','"personal"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"TypeScript"','op',', ','str','"AI"','op',', ','str','"React"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"private"','op',','],
+      ['op','},'],
+      ['op','{'],
+      ['','  ','prop','Name','op',':   ','str','"ISDN"','op',','],
+      ['','  ','prop','Client','op',': ','str','"21c Care"','op',','],
+      ['','  ','prop','Stack','op',':  ','op','[]','type','string','op','{ ','str','"Go"','op',' }','op',','],
+      ['','  ','prop','Status','op',': ','str','"public"','op',','],
+      ['op','},'],
+      ['op','}'],
+    ]
+  },
+  stack: {
+    lang:'JSON', ext:'stack.json',
+    lines:[
+      ['op','{'],
+      ['','  ','prop','"frontend"','op',': ','op','['],
+      ['','    ','str','"React"','op',','],
+      ['','    ','str','"TypeScript"','op',','],
+      ['','    ','str','"Next.js"','op',','],
+      ['','    ','str','"Tailwind"','op',','],
+      ['','    ','str','"Vite"'],
+      ['','  ','op','],'],
+      ['','  ','prop','"backend"','op',': ','op','['],
+      ['','    ','str','"Go"','op',','],
+      ['','    ','str','"Node.js"','op',','],
+      ['','    ','str','"REST"','op',','],
+      ['','    ','str','"gRPC"','op',','],
+      ['','    ','str','"GraphQL"'],
+      ['','  ','op','],'],
+      ['','  ','prop','"data"','op',': ','op','['],
+      ['','    ','str','"MSSQL"','op',','],
+      ['','    ','str','"PostgreSQL"','op',','],
+      ['','    ','str','"MongoDB"','op',','],
+      ['','    ','str','"Redis"'],
+      ['','  ','op','],'],
+      ['','  ','prop','"devops"','op',': ','op','['],
+      ['','    ','str','"Docker"','op',','],
+      ['','    ','str','"AWS"','op',','],
+      ['','    ','str','"CI/CD"','op',','],
+      ['','    ','str','"Nginx"'],
+      ['','  ','op','],'],
+      ['','  ','prop','"experience"','op',': ','num','"2+ years"','op',','],
+      ['','  ','prop','"location"','op',':   ','str','"Colombo, Sri Lanka"','op',','],
+      ['','  ','prop','"available"','op',':  ','kw','true'],
+      ['op','}'],
+    ]
+  },
+  contact: {
+    lang:'Go', ext:'contact.go',
+    lines:[
+      ['kw','package ','','contact'],
+      ['',''],
+      ['cmt','// Reach out — always happy to talk about projects.'],
+      ['',''],
+      ['kw','import ','str','"fmt"'],
+      ['',''],
+      ['kw','const ','op','('],
+      ['','  ','prop','Email  ','op','= ','str','"muhammedhspam@gmail.com"'],
+      ['','  ','prop','Phone  ','op','= ','str','"  +94 76 090 3997"'],
+      ['','  ','prop','GitHub ','op','= ','str','"github.com/muh4mmedh"'],
+      ['','  ','prop','City   ','op','= ','str','"Colombo, Sri Lanka"'],
+      ['','  ','prop','TZ     ','op','= ','str','"UTC+05:30"'],
+      ['op',')'],
+      ['',''],
+      ['kw','func ','fn','SayHello','op','() ','type','string ','op','{'],
+      ['','  ','kw','return ','str','"Hey! I build full-stack systems for real businesses."'],
+      ['op','}'],
+      ['',''],
+      ['kw','func ','fn','Availability','op','() ','type','bool ','op','{'],
+      ['','  ','kw','return ','kw','true ','cmt','// open to freelance via Ark Devs'],
+      ['op','}'],
+      ['',''],
+      ['kw','func ','fn','main','op','() {'],
+      ['','  ','fn','fmt','op','.','fn','Printf','op','(','str','"Contact: %s\\n"','op',', ','prop','Email','op',')'],
+      ['op','}'],
+    ]
+  }
+};
+
+// ── render helpers ──────────────────────────────────────────────────
+function renderLine(parts) {
+  if(!parts || parts.length===0) return '';
+  if(parts.length===2){
+    const cls=parts[0], txt=parts[1]||'';
+    if(cls==='') return txt;
+    return '<span class="'+cls+'">'+txt+'</span>';
+  }
+  // multi-part: [class,text, class,text, ...]
+  let out='';
+  for(let i=0;i<parts.length;i+=2){
+    const cls=parts[i];
+    const txt=parts[i+1];
+    if(txt===undefined) break;         // guard: skip dangling class
+    if(cls==='') out+=txt;
+    else out+='<span class="'+cls+'">'+txt+'</span>';
+  }
+  return out;
+}
+
+function buildEditor(fileKey) {
+  const f = FILES[fileKey];
+  const lines = f.lines;
+  let nums = '', code = '';
+  lines.forEach(function(parts, i){
+    nums += '<span class="ln">' + (i+1) + '</span>';
+    code += '<span class="code-line">' + renderLine(parts) + '</span>';
+  });
+  document.getElementById('lineNumbers').innerHTML = nums;
+  document.getElementById('codePain').innerHTML = code;
+  document.getElementById('bc-file').textContent = f.ext;
+  document.getElementById('sbLang').textContent = f.lang;
+
+  // outline
+  buildOutline(fileKey);
+  // scroll to top
+  document.getElementById('editorContent').scrollTop = 0;
+}
+
+function buildOutline(fileKey) {
+  const el = document.getElementById('outline');
+  const outlines = {
+    readme:   ['About','Status','Quick links'],
+    about:    ['Developer struct','var me','func main'],
+    projects: ['Project struct','var Projects'],
+    stack:    ['frontend','backend','data','devops'],
+    contact:  ['const block','func SayHello','func Availability']
+  };
+  const items = outlines[fileKey] || [];
+  el.innerHTML = items.map(function(s){
+    return '<div class="tree-item" style="padding-left:1rem;font-size:.68rem;">'
+         + '<i class="codicon codicon-symbol-method" style="color:var(--purple);margin-right:.35rem;font-size:13px;"></i>' + s + '</div>';
+  }).join('');
+}
+
+// ── file open ──────────────────────────────────────────────────────
+function openFile(key, tabEl, treeEl) {
+  // update tabs
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  if(tabEl) tabEl.classList.add('active');
+
+  // update tree
+  document.querySelectorAll('.sidebar .tree-item[data-file]').forEach(function(t){ t.classList.remove('selected'); });
+  if(treeEl) treeEl.classList.add('selected');
+  else {
+    var match = document.querySelector('.sidebar .tree-item[data-file="'+key+'"]');
+    if(match) match.classList.add('selected');
+  }
+
+  buildEditor(key);
+}
+
+// ── time ──────────────────────────────────────────────────────────
+function tick(){
+  var now = new Date();
+  var off = 5.5*3600000;
+  var lc = new Date(now.getTime() + off + now.getTimezoneOffset()*60000);
+  var h=lc.getHours(), m=lc.getMinutes(), s=lc.getSeconds();
+  var ap=h>=12?'PM':'AM';
+  var str=((h%12)||12)+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s+' '+ap;
+  var el=document.getElementById('sbTime');
+  if(el) el.textContent=str;
+}
+tick(); setInterval(tick,1000);
+
+// ── init ──────────────────────────────────────────────────────────
+buildEditor('readme');
+</script>
+</body>
+</html>
