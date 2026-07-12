@@ -15,6 +15,11 @@
   function qa(s, c){ return Array.prototype.slice.call((c||document).querySelectorAll(s)); }
   var clamp = function(v, a, b){ return Math.max(a, Math.min(b, v)); };
 
+  /* while the page is actively scrolling, ambient layers (led grid, portrait
+     shimmer) skip their redraws so the main thread stays free for the scroll */
+  var scrollBusyUntil = 0;
+  addEventListener('scroll', function(){ scrollBusyUntil = performance.now() + 160; }, {passive:true});
+
   var POOL = 'abcdefghjkmnpqrstuvwxyz0123456789#%&*+=';
   function splitChars(root){
     var chs = [];
@@ -93,11 +98,13 @@
           dots.push({x:x, y:y, a:0, blink:Math.random()*6.28, bs:.4 + Math.random()*1.2});
     }
     build();
-    addEventListener('resize', build, {passive:true});
+    var rt;
+    addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(build, 180); }, {passive:true});
     if(fine) addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; }, {passive:true});
     var R = 150, R2 = R*R;
     function frame(ts){
       if(FRAME_MS && ts - lastTs < FRAME_MS){ requestAnimationFrame(frame); return; }
+      if(ts < scrollBusyUntil){ requestAnimationFrame(frame); return; }
       lastTs = ts;
       t += .016;
       ctx.clearRect(0,0,W,H);
@@ -315,6 +322,7 @@
     function frame(ts){
       if(!running) return;
       if(targetR === 0 && r < 2 && ts - lastT < 28){ requestAnimationFrame(frame); return; } // idle shimmer at ~30fps
+      if(targetR === 0 && r < 2 && ts < scrollBusyUntil){ requestAnimationFrame(frame); return; }
       lastT = ts;
       t += .02;
       ctx.clearRect(0,0,W,H);
@@ -698,6 +706,7 @@
       q('#hTotal').textContent = String(cards.length).padStart(2,'0');
       function dist(){ return Math.max(0, track.scrollWidth - innerWidth); }
       var st;
+      var hCurEl = q('#hCur'), lastIdx = 0;
       var tiltTos = cards.map(function(c){ return gsap.quickTo(c, 'rotationY', {duration:.6, ease:'power2'}); });
       var tween = gsap.to(track, {
         x:function(){ return -dist(); },
@@ -709,7 +718,7 @@
           onUpdate:function(self){
             st = self;
             var idx = Math.min(cards.length, Math.max(1, Math.round(self.progress*(cards.length-1)) + 1));
-            q('#hCur').textContent = String(idx).padStart(2,'0');
+            if(idx !== lastIdx){ lastIdx = idx; hCurEl.textContent = String(idx).padStart(2,'0'); }
             var tilt = clamp(self.getVelocity()/-180, -8, 8);
             tiltTos.forEach(function(f){ f(tilt); });
           }
@@ -796,14 +805,19 @@
     (function(){
       var targets = qa('.bento, .repo-list, .clients');
       if(!targets.length) return;
-      var v = 0, sk = 0;
+      var v = 0, sk = 0, resting = true;
       ScrollTrigger.create({ onUpdate:function(self){ v = self.getVelocity(); } });
       gsap.ticker.add(function(){
         v *= .9;
         var target = clamp(v/900, -1.4, 1.4);
         sk += (target - sk)*.12;
+        var i;
         if(Math.abs(sk) > .01){
-          for(var i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:sk});
+          resting = false;
+          for(i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:sk});
+        } else if(!resting){
+          resting = true; sk = 0;
+          for(i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:0});
         }
       });
     })();
@@ -830,6 +844,7 @@
         if(!shown){ shown = true; gsap.to([dot,ring], {opacity:1, duration:.3}); }
       }, {passive:true});
       gsap.ticker.add(function(){
+        if(Math.abs(tx-dx) + Math.abs(ty-dy) + Math.abs(tx-rx) + Math.abs(ty-ry) < .08) return; // cursor settled
         dx += (tx-dx)*.55; dy += (ty-dy)*.55;
         rx += (tx-rx)*.14; ry += (ty-ry)*.14;
         dot.style.transform = 'translate(' + dx + 'px,' + dy + 'px) translate(-50%,-50%)';

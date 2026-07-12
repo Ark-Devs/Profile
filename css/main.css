@@ -47,21 +47,23 @@ main{position:relative;z-index:1;}
 
 /* ================= grain ================= */
 .grain{
-  position:fixed;inset:-100%;z-index:9999;pointer-events:none;opacity:.04;
+  position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
   animation:grain 7s steps(9) infinite;
 }
+/* jitter the tiled noise via background-position — same flicker, viewport-sized layer
+   instead of a 3x-viewport composited texture */
 @keyframes grain{
-  0%,100%{transform:translate(0,0)}12%{transform:translate(-3%,2%)}25%{transform:translate(2%,-4%)}
-  37%{transform:translate(-4%,-2%)}50%{transform:translate(3%,4%)}62%{transform:translate(-2%,3%)}
-  75%{transform:translate(4%,-3%)}87%{transform:translate(-3%,-4%)}
+  0%,100%{background-position:0 0}12%{background-position:-170px 115px}25%{background-position:115px -230px}
+  37%{background-position:-230px -115px}50%{background-position:170px 230px}62%{background-position:-115px 170px}
+  75%{background-position:230px -170px}87%{background-position:-170px -230px}
 }
 
 /* ================= custom cursor ================= */
 body.cur, body.cur a, body.cur button{cursor:none;}
 .cur-dot,.cur-ring{
   position:fixed;top:0;left:0;z-index:10001;pointer-events:none;border-radius:50%;
-  transform:translate(-50%,-50%);opacity:0;
+  transform:translate(-50%,-50%);opacity:0;will-change:transform;
 }
 .cur-dot{width:6px;height:6px;background:var(--red);}
 .cur-ring{
@@ -93,7 +95,7 @@ body.cur-hover .cur-dot{background:var(--white);}
 
 /* ================= anim helpers ================= */
 .r{color:var(--red);}
-.ch{display:inline-block;will-change:contents;}
+.ch{display:inline-block;}
 .wd{display:inline-block;white-space:nowrap;}
 /* masked word reveals */
 .wm{display:inline-block;overflow:hidden;vertical-align:top;}
@@ -132,8 +134,8 @@ body.gs .reveal{opacity:1;transform:none;transition:none;}
   border-bottom:1px solid transparent;
 }
 .nav.scrolled{
-  background:rgba(10,10,10,.82);backdrop-filter:blur(20px) saturate(1.2);
-  -webkit-backdrop-filter:blur(20px) saturate(1.2);
+  background:rgba(10,10,10,.88);backdrop-filter:blur(10px) saturate(1.2);
+  -webkit-backdrop-filter:blur(10px) saturate(1.2);
   border-bottom-color:var(--border);padding:.85rem 2.6rem;
 }
 .nav-logo{font-family:var(--dot);font-weight:900;font-size:1.02rem;color:var(--white);display:flex;align-items:baseline;gap:.14rem;}
