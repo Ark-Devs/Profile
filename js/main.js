@@ -767,7 +767,11 @@
         if(idx !== lastIdx){ lastIdx = idx; hCurEl.textContent = String(idx).padStart(2,'0'); }
       }
       wrap.addEventListener('scroll', sync, {passive:true});
+      /* the rail must always open on card 01 — scroll anchoring or a restored
+         offset during initial layout can otherwise leave it parked at the end */
+      wrap.scrollLeft = 0;
       sync();
+      addEventListener('load', function(){ wrap.scrollLeft = 0; sync(); });
 
       /* vertical wheel pans the rail, but releases the page at either end so the
          user is never trapped in the section */

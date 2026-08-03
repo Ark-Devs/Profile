@@ -441,7 +441,7 @@ body.gs .me-img{visibility:hidden;}
 /* native horizontal scroll — 1:1 with input, never desyncs from the user */
 .hwrap{
   overflow-x:auto;overflow-y:hidden;
-  overscroll-behavior-x:contain;
+  overscroll-behavior-x:contain;overflow-anchor:none;
   scrollbar-width:none;-ms-overflow-style:none;
   -webkit-overflow-scrolling:touch;
 }
