@@ -818,7 +818,19 @@
       }, {threshold:.08});
       cards.forEach(function(c){ cio.observe(c); });
 
-      return function(){ cio.disconnect(); gsap.set(cards, {clearProps:'all'}); };
+      /* belt and braces: a blank "selected work" section is the worst possible
+         failure here, so force anything on screen visible if the observer hasn't */
+      var net = setTimeout(function(){
+        cards.forEach(function(c){
+          var r = c.getBoundingClientRect();
+          if(getComputedStyle(c).visibility === 'hidden' && r.right > 0 && r.left < innerWidth){
+            cio.unobserve(c);
+            gsap.set(c, {autoAlpha:1, y:0});
+          }
+        });
+      }, 2600);
+
+      return function(){ clearTimeout(net); cio.disconnect(); gsap.set(cards, {clearProps:'all'}); };
     });
     mm.add('(max-width: 980px)', function(){
       gsap.set('.hcard', {autoAlpha:0, y:40});
