@@ -102,13 +102,18 @@
     addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(build, 180); }, {passive:true});
     if(fine) addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; }, {passive:true});
     var R = 150, R2 = R*R;
+    /* setting globalAlpha + fillRect per dot costs one canvas state change and one
+       draw call each — ~37k/sec at 720p. quantising alpha into LV levels lets every
+       dot at the same level go out in a single batched fill: ~20 calls/frame. */
+    var LV = 9, A_MAX = .72;
+    var bins = []; for(var b = 0; b < LV*2; b++) bins.push([]);
     function frame(ts){
       if(FRAME_MS && ts - lastTs < FRAME_MS){ requestAnimationFrame(frame); return; }
       if(ts < scrollBusyUntil){ requestAnimationFrame(frame); return; }
       lastTs = ts;
       t += .016;
       ctx.clearRect(0,0,W,H);
-      var cur = '';
+      for(var n = 0; n < bins.length; n++) bins[n].length = 0;
       for(var i = 0; i < dots.length; i++){
         var d = dots[i];
         var base = .05 + .035*Math.max(0, Math.sin(t*d.bs + d.blink));
@@ -119,12 +124,22 @@
           target = base + k*k*.6;
         }
         d.a += (target - d.a)*.14;
-        var col = (dd < R2*.14 && d.a > .09) ? '#ff4438' : '#ededed';
-        if(col !== cur){ ctx.fillStyle = col; cur = col; }
-        ctx.globalAlpha = d.a;
-        ctx.fillRect(d.x-1, d.y-1, 2, 2);
+        var lvl = (d.a/A_MAX*LV)|0;
+        if(lvl < 0) continue;
+        if(lvl >= LV) lvl = LV-1;
+        var red = dd < R2*.14 && d.a > .09;
+        var arr = bins[red ? LV+lvl : lvl];
+        arr.push(d.x-1, d.y-1);
       }
-      ctx.globalAlpha = 1;
+      for(var bi = 0; bi < bins.length; bi++){
+        var bucket = bins[bi]; if(!bucket.length) continue;
+        var isRed = bi >= LV, lv = isRed ? bi-LV : bi;
+        ctx.fillStyle = (isRed ? 'rgba(255,68,56,' : 'rgba(237,237,237,') +
+                        ((lv + .5)/LV*A_MAX).toFixed(3) + ')';
+        ctx.beginPath();
+        for(var j = 0; j < bucket.length; j += 2) ctx.rect(bucket[j], bucket[j+1], 2, 2);
+        ctx.fill();
+      }
       requestAnimationFrame(frame);
     }
     if(!reduced){ requestAnimationFrame(frame); }
@@ -212,6 +227,8 @@
       es.forEach(function(e){ heroVisible = e.isIntersecting; });
     }, {threshold:0}).observe(hero);
     var lastDisperse = -1;
+    var LV = 5;                                    // alpha buckets → batched fills
+    var bins = []; for(var bq = 0; bq < LV*2; bq++) bins.push([]);
     function frame(ts){
       if(!t0) t0 = ts;
       if(!heroVisible){ requestAnimationFrame(frame); return; }
@@ -223,7 +240,7 @@
       ctx.clearRect(0,0,cv.width,cv.height);
       var vis = 1 - disperse;
       if(vis <= 0){ requestAnimationFrame(frame); return; }
-      var cur = '';
+      for(var n = 0; n < bins.length; n++) bins[n].length = 0;
       for(var i = 0; i < pts.length; i++){
         var p = pts[i];
         if(el > p.d){
@@ -241,12 +258,19 @@
         p.oy += (toy - p.oy)*.16;
         var rx = p.x + p.ox + p.sx*disperse;
         var ry = p.y + p.oy + p.sy*disperse;
-        var col = p.red ? '#ff4438' : '#ededed';
-        if(col !== cur){ ctx.fillStyle = col; cur = col; }
-        ctx.globalAlpha = p.a*vis;
-        ctx.fillRect(rx-1.1, ry-1.1, 2.2, 2.2);
+        var lvl = (p.a*LV)|0; if(lvl >= LV) lvl = LV-1;
+        var arr = bins[p.red ? LV+lvl : lvl];
+        arr.push(rx-1.1, ry-1.1);
       }
-      ctx.globalAlpha = 1;
+      for(var bi = 0; bi < bins.length; bi++){
+        var bucket = bins[bi]; if(!bucket.length) continue;
+        var isRed = bi >= LV, lv = isRed ? bi-LV : bi;
+        ctx.fillStyle = (isRed ? 'rgba(255,68,56,' : 'rgba(237,237,237,') +
+                        (((lv + .5)/LV)*vis).toFixed(3) + ')';
+        ctx.beginPath();
+        for(var j = 0; j < bucket.length; j += 2) ctx.rect(bucket[j], bucket[j+1], 2.2, 2.2);
+        ctx.fill();
+      }
       requestAnimationFrame(frame);
     }
 
@@ -290,6 +314,7 @@
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var W, H, cells = [], GAP = 7;
     var mx = -9999, my = -9999, r = 0, targetR = 0, running = false, ready = false;
+    var halftone = null;   // pre-rendered dot matrix — static, so it is drawn once
 
     function cover(iw, ih, cw, ch){
       var s = Math.max(cw/iw, ch/ih);
@@ -316,26 +341,49 @@
           if(lum > .07) cells.push({x:x*GAP + GAP/2, y:y*GAP + GAP/2, l:lum, ph:Math.random()*6.28});
         }
       }
+      bakeHalftone();
       ready = true;
+    }
+    /* the halftone never changes once built, so rasterise it once and blit it each
+       frame instead of re-issuing ~4000 alpha-set + fillRect pairs per frame */
+    function bakeHalftone(){
+      halftone = document.createElement('canvas');
+      halftone.width = Math.max(1, W*dpr); halftone.height = Math.max(1, H*dpr);
+      var hc = halftone.getContext('2d');
+      hc.setTransform(dpr,0,0,dpr,0,0);
+      var LV = 10, bins = [], i;
+      for(i = 0; i < LV; i++) bins.push([]);
+      for(i = 0; i < cells.length; i++){
+        var c = cells[i];
+        var sz = c.l*GAP*.62;
+        if(sz < .3) continue;
+        var lvl = ((.18 + c.l*.82)*LV)|0;
+        if(lvl >= LV) lvl = LV-1;
+        bins[lvl].push(c.x - sz/2, c.y - sz/2, sz);
+      }
+      for(i = 0; i < LV; i++){
+        var arr = bins[i]; if(!arr.length) continue;
+        hc.fillStyle = 'rgba(237,237,237,' + ((i + .5)/LV).toFixed(3) + ')';
+        hc.beginPath();
+        for(var j = 0; j < arr.length; j += 3) hc.rect(arr[j], arr[j+1], arr[j+2], arr[j+2]);
+        hc.fill();
+      }
     }
     var t = 0, lastT = 0;
     function frame(ts){
       if(!running) return;
-      if(targetR === 0 && r < 2 && ts - lastT < 28){ requestAnimationFrame(frame); return; } // idle shimmer at ~30fps
-      if(targetR === 0 && r < 2 && ts < scrollBusyUntil){ requestAnimationFrame(frame); return; }
+      var idle = targetR === 0 && r < 2;
+      if(idle && ts - lastT < 45){ requestAnimationFrame(frame); return; }  // idle breathe at ~22fps
+      if(idle && ts < scrollBusyUntil){ requestAnimationFrame(frame); return; }
       lastT = ts;
       t += .02;
       ctx.clearRect(0,0,W,H);
       r += (targetR - r)*.11;
-      ctx.fillStyle = '#ededed';
-      for(var i = 0; i < cells.length; i++){
-        var c = cells[i];
-        var sz = c.l*GAP*.62 + Math.sin(t + c.ph)*.35*c.l;
-        if(sz < .3) continue;
-        ctx.globalAlpha = .18 + c.l*.82;
-        ctx.fillRect(c.x - sz/2, c.y - sz/2, sz, sz);
+      if(halftone){
+        ctx.globalAlpha = .93 + Math.sin(t)*.07;   // whole-layer breathe replaces per-cell shimmer
+        ctx.drawImage(halftone, 0, 0, W, H);
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
       if(r > 2){
         var f = cover(img.naturalWidth, img.naturalHeight, W, H);
         ctx.save();
@@ -560,7 +608,10 @@
     var lenis = null;
     if (window.Lenis) {
       document.documentElement.classList.add('lenis-on');
-      lenis = new Lenis({ lerp: .092, wheelMultiplier: 1 });
+      /* lerp drives perceived input lag: each frame closes this fraction of the
+         remaining distance, so .09 trails the wheel by ~800ms. .18 still reads as
+         smooth but settles in ~390ms. */
+      lenis = new Lenis({ lerp: .18, wheelMultiplier: 1.15 });
       lenis.on('scroll', ScrollTrigger.update);
       gsap.ticker.add(function(t){ lenis.raf(t*1000); });
       gsap.ticker.lagSmoothing(0);
@@ -569,7 +620,7 @@
           var id = a.getAttribute('href');
           if(id.length > 1 && q(id)){
             e.preventDefault();
-            lenis.scrollTo(id, {offset:-64, duration:1.4});
+            lenis.scrollTo(id, {offset:-64, duration:.9});
           }
         });
       });
@@ -673,7 +724,7 @@
       var mm0 = gsap.matchMedia();
       mm0.add('(min-width: 981px)', function(){
         var tl = gsap.timeline({
-          scrollTrigger:{trigger:'#statement', start:'top top', end:'+=130%', scrub:.5, pin:true, anticipatePin:1}
+          scrollTrigger:{trigger:'#statement', start:'top top', end:'+=65%', scrub:.3, pin:true, anticipatePin:1}
         });
         tl.fromTo(el, {scale:.96, y:30}, {scale:1, y:0, ease:'none', duration:.3}, 0);
         tl.to('#statementText .w', {color:'#ededed', stagger:.05, ease:'none'}, 0);
@@ -698,78 +749,76 @@
     gsap.from('.ide', {clipPath:'inset(0% 0% 100% 0%)', duration:1.2, ease:'power4.inOut',
       scrollTrigger:{trigger:'.ide', start:'top 82%', once:true}});
 
-    /* horizontal work gallery (desktop) — scrub + drag + 3d tilt */
+    /* horizontal work gallery (desktop) — native overflow scroll.
+       deliberately NOT pinned/scrubbed: pinning hijacked ~2700px of vertical
+       scroll and stranded the section in half-scrolled states. native scrollLeft
+       is 1:1 with input, so it can never desync from where the user is. */
     var mm = gsap.matchMedia();
     mm.add('(min-width: 981px)', function(){
-      var track = q('#htrack'), wrap = q('#hwrap');
-      var cards = qa('.hcard');
+      var wrap = q('#hwrap'), cards = qa('.hcard');
       q('#hTotal').textContent = String(cards.length).padStart(2,'0');
-      function dist(){ return Math.max(0, track.scrollWidth - innerWidth); }
-      var st;
       var hCurEl = q('#hCur'), lastIdx = 0;
-      var tiltTos = cards.map(function(c){ return gsap.quickTo(c, 'rotationY', {duration:.6, ease:'power2'}); });
-      var tween = gsap.to(track, {
-        x:function(){ return -dist(); },
-        ease:'none',
-        scrollTrigger:{
-          trigger:'.hsec', start:'top top',
-          end:function(){ return '+=' + (dist() + innerHeight*.25); },
-          scrub:1, pin:true, invalidateOnRefresh:true, anticipatePin:1,
-          onUpdate:function(self){
-            st = self;
-            var idx = Math.min(cards.length, Math.max(1, Math.round(self.progress*(cards.length-1)) + 1));
-            if(idx !== lastIdx){ lastIdx = idx; hCurEl.textContent = String(idx).padStart(2,'0'); }
-            var tilt = clamp(self.getVelocity()/-180, -8, 8);
-            tiltTos.forEach(function(f){ f(tilt); });
-          }
-        }
-      });
-      cards.forEach(function(c){
-        gsap.fromTo(c, {y:24}, {y:-12, ease:'none',
-          scrollTrigger:{containerAnimation:tween, trigger:c, start:'left right', end:'right left', scrub:true}});
-      });
 
-      /* drag to scroll with momentum */
-      var dragging = false, lastX = 0, vel = 0, moved = 0, momId = null;
-      function scrollNow(d){
-        var target = (lenis ? lenis.scroll : window.scrollY) + d;
-        if(lenis) lenis.scrollTo(target, {immediate:true});
-        else window.scrollTo(0, target);
+      function maxScroll(){ return Math.max(0, wrap.scrollWidth - wrap.clientWidth); }
+      function sync(){
+        var m = maxScroll();
+        var p = m > 0 ? wrap.scrollLeft/m : 0;
+        var idx = clamp(Math.round(p*(cards.length-1)) + 1, 1, cards.length);
+        if(idx !== lastIdx){ lastIdx = idx; hCurEl.textContent = String(idx).padStart(2,'0'); }
       }
-      function ratio(){
-        if(!st) return 1.2;
-        return (st.end - st.start) / Math.max(1, dist());
-      }
+      wrap.addEventListener('scroll', sync, {passive:true});
+      sync();
+
+      /* vertical wheel pans the rail, but releases the page at either end so the
+         user is never trapped in the section */
+      wrap.addEventListener('wheel', function(e){
+        if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;   // genuine horizontal intent
+        var m = maxScroll(); if(m <= 0) return;
+        var cur = wrap.scrollLeft;
+        /* only hand the page back once the rail is *exactly* at a bound — clamping
+           rather than overshoot-and-release is what stops it stranding mid-card */
+        if((e.deltaY > 0 && cur >= m - 1) || (e.deltaY < 0 && cur <= 0)) return;
+        e.preventDefault();
+        e.stopPropagation();            // keep lenis from scrolling the page too
+        wrap.scrollLeft = Math.max(0, Math.min(m, cur + e.deltaY));
+      }, {passive:false});
+
+      /* drag to pan */
+      var down = false, startX = 0, startL = 0, moved = 0;
       wrap.addEventListener('pointerdown', function(e){
-        if(!st || !st.isActive) return;
-        dragging = true; moved = 0; vel = 0; lastX = e.clientX;
+        down = true; moved = 0; startX = e.clientX; startL = wrap.scrollLeft;
         wrap.classList.add('dragging');
-        if(momId){ cancelAnimationFrame(momId); momId = null; }
+        try{ wrap.setPointerCapture(e.pointerId); }catch(_){}
       });
-      addEventListener('pointermove', function(e){
-        if(!dragging) return;
-        var dx = e.clientX - lastX; lastX = e.clientX;
+      wrap.addEventListener('pointermove', function(e){
+        if(!down) return;
+        var dx = e.clientX - startX;
         moved += Math.abs(dx);
-        var d = -dx * ratio();
-        vel = d;
-        scrollNow(d);
-      }, {passive:true});
-      addEventListener('pointerup', function(){
-        if(!dragging) return;
-        dragging = false;
-        wrap.classList.remove('dragging');
-        (function mom(){
-          vel *= .94;
-          if(Math.abs(vel) > .4){
-            scrollNow(vel);
-            momId = requestAnimationFrame(mom);
-          }
-        })();
+        wrap.scrollLeft = startL - dx;
       });
+      function release(e){
+        if(!down) return;
+        down = false; wrap.classList.remove('dragging');
+        try{ wrap.releasePointerCapture(e.pointerId); }catch(_){}
+      }
+      wrap.addEventListener('pointerup', release);
+      wrap.addEventListener('pointercancel', release);
       wrap.addEventListener('click', function(e){
         if(moved > 6){ e.preventDefault(); e.stopPropagation(); moved = 0; }
       }, true);
-      return function(){};
+
+      /* IntersectionObserver rather than a ScrollTrigger: it fires immediately for
+         cards already on screen, so landing on this section directly (deep link,
+         reload part-way down) can never leave the whole gallery invisible */
+      gsap.set(cards, {autoAlpha:0, y:34});
+      var cio = new IntersectionObserver(function(entries){
+        var hit = entries.filter(function(e){ return e.isIntersecting; })
+                         .map(function(e){ cio.unobserve(e.target); return e.target; });
+        if(hit.length) gsap.to(hit, {autoAlpha:1, y:0, duration:.9, ease:'power3.out', stagger:.07});
+      }, {threshold:.08});
+      cards.forEach(function(c){ cio.observe(c); });
+
+      return function(){ cio.disconnect(); gsap.set(cards, {clearProps:'all'}); };
     });
     mm.add('(max-width: 980px)', function(){
       gsap.set('.hcard', {autoAlpha:0, y:40});
@@ -805,7 +854,7 @@
     (function(){
       var targets = qa('.bento, .repo-list, .clients');
       if(!targets.length) return;
-      var v = 0, sk = 0, resting = true;
+      var v = 0, sk = 0, applied = 0, resting = true;
       ScrollTrigger.create({ onUpdate:function(self){ v = self.getVelocity(); } });
       gsap.ticker.add(function(){
         v *= .9;
@@ -813,10 +862,14 @@
         sk += (target - sk)*.12;
         var i;
         if(Math.abs(sk) > .01){
-          resting = false;
-          for(i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:sk});
+          /* skewing these grids repaints large text subtrees, so only push a value
+             when it moved enough to actually be visible */
+          var qz = Math.round(sk*20)/20;
+          if(qz === applied) return;
+          applied = qz; resting = false;
+          for(i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:qz});
         } else if(!resting){
-          resting = true; sk = 0;
+          resting = true; sk = 0; applied = 0;
           for(i = 0; i < targets.length; i++) gsap.set(targets[i], {skewY:0});
         }
       });
